@@ -28,27 +28,38 @@ const Layout: React.FC<LayoutProps> = ({ children, userType }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1 container max-w-md mx-auto px-4 py-6">
+      {/* Main Content */}
+      <main className="flex-1 container max-w-md mx-auto px-4 py-6 pb-24">
         {children}
       </main>
 
       {/* Bottom Navigation */}
-      <div className="bg-white border-t border-gray-200 fixed bottom-0 w-full">
-        <div className="container max-w-md mx-auto flex justify-between px-6 py-3">
+      <div className="bg-white border-t border-gray-200 fixed bottom-0 w-full shadow-lg rounded-t-3xl">
+        <div className="container max-w-md mx-auto flex justify-between px-8 py-4">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={index}
                 to={item.path}
-                className={`flex flex-col items-center ${
-                  isActive ? 'text-bookqin-primary' : 'text-gray-500'
+                className={`flex flex-col items-center transition-all ${
+                  isActive 
+                    ? 'text-bookqin-primary scale-110' 
+                    : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                <div className={`p-1 rounded-full ${isActive ? 'bg-bookqin-light' : ''}`}>
+                <div className={`p-1.5 rounded-full ${
+                  isActive 
+                    ? 'bg-bookqin-light' 
+                    : 'hover:bg-gray-100'
+                }`}>
                   {item.icon}
                 </div>
-                <span className="text-xs mt-1">{item.label}</span>
+                <span className={`text-xs mt-1 font-medium ${
+                  isActive ? 'opacity-100' : 'opacity-80'
+                }`}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}

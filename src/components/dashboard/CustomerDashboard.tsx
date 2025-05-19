@@ -1,7 +1,7 @@
 
 import React from 'react';
 import CustomButton from '../ui/CustomButton';
-import { Search, MapPin, Clock, Calendar, Star } from 'lucide-react';
+import { Search, MapPin, Clock, Calendar, Star, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import SalonCard from '../salon/SalonCard';
 import { Salon } from '@/lib/types';
