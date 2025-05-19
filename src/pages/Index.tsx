@@ -4,7 +4,7 @@ import { UserType } from '@/lib/types';
 import AuthForm from '@/components/auth/AuthForm';
 import Dashboard from './Dashboard';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Star, User, Home } from 'lucide-react';
+import { Calendar as CalendarIcon, Star, User, Home } from 'lucide-react';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -65,7 +65,7 @@ const Index = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all hover:-translate-y-1">
               <div className="h-12 w-12 bg-bookqin-light rounded-full flex items-center justify-center mb-3">
-                <Calendar className="h-6 w-6 text-bookqin-primary" />
+                <CalendarIcon className="h-6 w-6 text-bookqin-primary" />
               </div>
               <h4 className="font-medium mb-2 text-lg">Easy Booking</h4>
               <p className="text-sm text-gray-500">Book appointments with your favorite salon in seconds</p>
