@@ -64,14 +64,15 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				bookqin: {
-					primary: '#9b87f5',
-					secondary: '#7E69AB',
-					dark: '#1A1F2C',
-					light: '#E5DEFF',
-					pink: '#FFDEE2',
+					primary: '#0D1B2A',    // Deep Navy Blue
+					secondary: '#C28840',  // Warm Bronze/Gold
+					light: '#F8F8F8',      // Soft White
+					dark: '#0D1B2A',       // Deep Navy Blue
+					gold: '#C28840',       // Warm Bronze/Gold
+					softGray: '#F0F2F5',
 					peach: '#FDE1D3',
 					blue: '#D3E4FD',
-					softGray: '#F1F0FB'
+					pink: '#FFDEE2',
 				}
 			},
 			borderRadius: {

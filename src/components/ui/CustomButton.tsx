@@ -40,7 +40,7 @@ const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProps>(
         disabled={isLoading}
         className={cn(
           'inline-flex items-center justify-center font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bookqin-secondary focus-visible:ring-opacity-50',
           variants[variant],
           sizes[size],
           fullWidth ? 'w-full' : '',

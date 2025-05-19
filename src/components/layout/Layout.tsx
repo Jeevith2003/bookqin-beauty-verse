@@ -27,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userType }) => {
       ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-bookqin-light">
       {/* Main Content */}
       <main className="flex-1 container max-w-md mx-auto px-4 py-6 pb-24">
         {children}
@@ -44,14 +44,14 @@ const Layout: React.FC<LayoutProps> = ({ children, userType }) => {
                 to={item.path}
                 className={`flex flex-col items-center transition-all ${
                   isActive 
-                    ? 'text-bookqin-primary scale-110' 
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'text-bookqin-secondary scale-110' 
+                    : 'text-bookqin-primary/60 hover:text-bookqin-primary/80'
                 }`}
               >
                 <div className={`p-1.5 rounded-full ${
                   isActive 
                     ? 'bg-bookqin-light' 
-                    : 'hover:bg-gray-100'
+                    : 'hover:bg-bookqin-light/50'
                 }`}>
                   {item.icon}
                 </div>

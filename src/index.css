@@ -7,65 +7,65 @@
 
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 26 31 44;
+    --background: 240 30% 98%;  /* Soft White */
+    --foreground: 210 54% 11%;  /* Deep Navy Blue */
 
-    --card: 255 255 255;
-    --card-foreground: 26 31 44;
+    --card: 0 0% 100%;
+    --card-foreground: 210 54% 11%;
 
-    --popover: 255 255 255;
-    --popover-foreground: 26 31 44;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 54% 11%;
 
-    --primary: 254 135 248;
-    --primary-foreground: 255 255 255;
+    --primary: 210 54% 11%;     /* Deep Navy Blue */
+    --primary-foreground: 240 30% 98%;
 
-    --secondary: 126 105 171;
-    --secondary-foreground: 255 255 255;
+    --secondary: 35 51% 50%;    /* Warm Bronze/Gold */
+    --secondary-foreground: 240 30% 98%;
 
-    --muted: 241 240 251;
-    --muted-foreground: 115 115 115;
+    --muted: 210 20% 95%;
+    --muted-foreground: 210 30% 40%;
 
-    --accent: 229 222 255;
-    --accent-foreground: 26 31 44;
+    --accent: 35 51% 50%;       /* Warm Bronze/Gold */
+    --accent-foreground: 210 54% 11%;
 
-    --destructive: 234 56 77;
-    --destructive-foreground: 255 255 255;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 240 30% 98%;
 
-    --border: 229 222 255;
-    --input: 229 222 255;
-    --ring: 155 135 245;
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 35 51% 50%;         /* Warm Bronze/Gold */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 26 31 44;
-    --foreground: 255 255 255;
+    --background: 210 54% 11%;  /* Deep Navy Blue */
+    --foreground: 240 30% 98%;  /* Soft White */
 
-    --card: 38 43 56;
-    --card-foreground: 255 255 255;
+    --card: 210 45% 15%;
+    --card-foreground: 240 30% 98%;
 
-    --popover: 38 43 56;
-    --popover-foreground: 255 255 255;
+    --popover: 210 45% 15%;
+    --popover-foreground: 240 30% 98%;
 
-    --primary: 155 135 245;
-    --primary-foreground: 255 255 255;
+    --primary: 240 30% 98%;     /* Soft White */
+    --primary-foreground: 210 54% 11%;
 
-    --secondary: 126 105 171;
-    --secondary-foreground: 255 255 255;
+    --secondary: 35 51% 50%;    /* Warm Bronze/Gold */
+    --secondary-foreground: 240 30% 98%;
 
-    --muted: 38 43 56;
-    --muted-foreground: 161 161 170;
+    --muted: 210 45% 15%;
+    --muted-foreground: 210 30% 70%;
 
-    --accent: 78 83 96;
-    --accent-foreground: 255 255 255;
+    --accent: 35 51% 50%;       /* Warm Bronze/Gold */
+    --accent-foreground: 240 30% 98%;
 
-    --destructive: 234 56 77;
-    --destructive-foreground: 255 255 255;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 240 30% 98%;
 
-    --border: 78 83 96;
-    --input: 78 83 96;
-    --ring: 155 135 245;
+    --border: 210 45% 25%;
+    --input: 210 45% 25%;
+    --ring: 35 51% 50%;         /* Warm Bronze/Gold */
   }
 }
 
@@ -79,10 +79,18 @@
   }
 
   .card-shadow {
-    box-shadow: 0 4px 20px rgba(155, 135, 245, 0.08);
+    box-shadow: 0 4px 20px rgba(13, 27, 42, 0.08);
   }
   
   .gradient-text {
     @apply text-transparent bg-clip-text bg-gradient-to-r from-bookqin-primary to-bookqin-secondary;
+  }
+  
+  .premium-gradient {
+    @apply bg-gradient-to-r from-bookqin-primary to-bookqin-dark;
+  }
+  
+  .premium-gold-accent {
+    @apply bg-gradient-to-r from-bookqin-secondary to-bookqin-gold/80;
   }
 }
