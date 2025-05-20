@@ -38,7 +38,33 @@ export const authService = {
   },
 
   /**
-   * Verify OTP and sign in/sign up user
+   * Send OTP to email address
+   */
+  async sendEmailOtp(email: string, userType: UserType): Promise<{ success: boolean; message: string; error?: string }> {
+    try {
+      // Call our custom edge function to send email OTP
+      const { data, error } = await supabase.functions.invoke('send-email-otp', {
+        body: { email, userType }
+      });
+
+      if (error) throw error;
+
+      return { 
+        success: true, 
+        message: 'OTP sent successfully to email' 
+      };
+    } catch (error) {
+      console.error('Error sending email OTP:', error);
+      return { 
+        success: false, 
+        message: 'Failed to send OTP to email', 
+        error: error.message 
+      };
+    }
+  },
+
+  /**
+   * Verify OTP for phone number and sign in/sign up user
    */
   async verifyOtp(phone: string, otp: string, userType: UserType): Promise<{ 
     success: boolean; 
@@ -68,6 +94,42 @@ export const authService = {
       return {
         success: false,
         message: 'Failed to verify OTP',
+        error: error.message
+      };
+    }
+  },
+
+  /**
+   * Verify email OTP and sign in/sign up user
+   */
+  async verifyEmailOtp(email: string, otp: string, userType: UserType): Promise<{ 
+    success: boolean; 
+    message: string; 
+    error?: string;
+    user?: any;
+  }> {
+    try {
+      // Call our custom edge function to verify email OTP
+      const { data, error } = await supabase.functions.invoke('verify-email-otp', {
+        body: { email, otp, userType }
+      });
+
+      if (error) throw error;
+
+      // If successful, the edge function will have created a session
+      // We'll refresh the auth state here
+      const { data: authData } = await supabase.auth.getSession();
+      
+      return {
+        success: true,
+        message: 'Email OTP verified successfully',
+        user: authData?.session?.user
+      };
+    } catch (error) {
+      console.error('Error verifying email OTP:', error);
+      return {
+        success: false,
+        message: 'Failed to verify email OTP',
         error: error.message
       };
     }
