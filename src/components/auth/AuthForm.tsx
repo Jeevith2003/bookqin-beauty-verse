@@ -3,9 +3,15 @@ import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import CustomButton from '../ui/CustomButton';
 import { UserType } from '@/lib/types';
-import { Mail, Phone, User, ArrowRight } from 'lucide-react';
+import { Mail, Phone, User, ArrowRight, Clock, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { authService } from '@/services/authService';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 interface AuthFormProps {
   onUserTypeSelect: (type: UserType) => void;
@@ -15,11 +21,12 @@ interface AuthFormProps {
 const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) => {
   const [authStep, setAuthStep] = useState<'userType' | 'credentials' | 'otp'>('userType');
   const [userType, setUserType] = useState<UserType | null>(null);
-  const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpExpiration, setOtpExpiration] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleUserTypeSelection = (type: UserType) => {
@@ -27,37 +34,131 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
     setAuthStep('credentials');
   };
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Simulated authentication process
-    setTimeout(() => {
-      setIsLoading(false);
-      setAuthStep('otp');
-      toast({
-        title: "Verification code sent",
-        description: `A verification code has been sent to your ${authMethod}`,
-      });
-    }, 1000);
+  const formatPhone = (input: string): string => {
+    // Ensure phone number has country code
+    if (input && !input.startsWith('+')) {
+      // Default to +91 (India) if no country code
+      return '+91' + input.replace(/[^0-9]/g, '');
+    }
+    return input.replace(/[^0-9+]/g, '');
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
+    
+    try {
+      const formattedPhone = formatPhone(phone);
+      
+      if (!formattedPhone || formattedPhone.length < 10) {
+        throw new Error('Please enter a valid phone number');
+      }
+      
+      if (!userType) {
+        throw new Error('User type is required');
+      }
 
-    // Simulated OTP verification
-    setTimeout(() => {
+      const result = await authService.sendOtp(formattedPhone, userType);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to send OTP');
+      }
+      
+      setOtpSent(true);
+      setOtpExpiration(Date.now() + 10 * 60 * 1000); // 10 minutes expiration
+      setAuthStep('otp');
+      
+      toast({
+        title: "Verification code sent",
+        description: `A verification code has been sent to ${formattedPhone}`,
+      });
+    } catch (err) {
+      setError(err.message);
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      if (!otp || otp.length !== 6) {
+        throw new Error('Please enter a valid 6-digit verification code');
+      }
+      
+      if (!userType) {
+        throw new Error('User type is required');
+      }
+
+      const formattedPhone = formatPhone(phone);
+      const result = await authService.verifyOtp(formattedPhone, otp, userType);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to verify OTP');
+      }
+      
       if (userType) {
         onUserTypeSelect(userType);
         onAuthSuccess();
       }
+      
       toast({
         title: "Authentication successful",
         description: "You've been successfully logged in!",
       });
-    }, 1000);
+    } catch (err) {
+      setError(err.message);
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      if (!userType) {
+        throw new Error('User type is required');
+      }
+      
+      const formattedPhone = formatPhone(phone);
+      const result = await authService.sendOtp(formattedPhone, userType);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to resend OTP');
+      }
+      
+      setOtpExpiration(Date.now() + 10 * 60 * 1000); // 10 minutes expiration
+      
+      toast({
+        title: "Verification code sent",
+        description: `A new verification code has been sent to ${formattedPhone}`,
+      });
+    } catch (err) {
+      setError(err.message);
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (authStep === 'userType') {
@@ -108,75 +209,48 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
           <h2 className="text-2xl font-bold gradient-text">
             {userType === 'customer' ? 'Customer Login' : 'Salon Login'}
           </h2>
-          <p className="text-gray-600">Enter your details to continue</p>
+          <p className="text-gray-600">Enter your phone number to continue</p>
         </div>
 
-        <Tabs defaultValue="email" className="w-full" onValueChange={(v) => setAuthMethod(v as 'email' | 'phone')}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="phone">Phone</TabsTrigger>
-          </TabsList>
-          <TabsContent value="email" className="mt-4">
-            <form onSubmit={handleCredentialsSubmit}>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      className="pl-10"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <CustomButton 
-                  type="submit" 
-                  fullWidth 
-                  isLoading={isLoading}
-                >
-                  Continue
-                </CustomButton>
+        <form onSubmit={handleSendOtp}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="phone" className="text-sm font-medium">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter your phone number"
+                  className="pl-10"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
               </div>
-            </form>
-          </TabsContent>
-          <TabsContent value="phone" className="mt-4">
-            <form onSubmit={handleCredentialsSubmit}>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="phone" className="text-sm font-medium">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="Enter your phone number"
-                      className="pl-10"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <CustomButton 
-                  type="submit" 
-                  fullWidth 
-                  isLoading={isLoading}
-                >
-                  Continue
-                </CustomButton>
+              <p className="text-xs text-gray-500">
+                We'll send a verification code to this number
+              </p>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 text-red-500 text-sm">
+                <AlertCircle className="h-4 w-4" />
+                <span>{error}</span>
               </div>
-            </form>
-          </TabsContent>
-        </Tabs>
+            )}
+
+            <CustomButton 
+              type="submit" 
+              fullWidth 
+              isLoading={isLoading}
+            >
+              Send OTP
+            </CustomButton>
+          </div>
+        </form>
 
         <button 
           onClick={() => setAuthStep('userType')}
@@ -194,7 +268,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold gradient-text">Verification</h2>
           <p className="text-gray-600">
-            Enter the verification code sent to {authMethod === 'email' ? email : phone}
+            Enter the verification code sent to {formatPhone(phone)}
           </p>
         </div>
 
@@ -204,22 +278,40 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
               <label htmlFor="otp" className="text-sm font-medium">
                 Verification Code
               </label>
-              <Input
-                id="otp"
-                type="text"
-                placeholder="Enter verification code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                className="text-center tracking-widest text-lg"
-                maxLength={6}
-              />
+              <div className="flex justify-center">
+                <InputOTP
+                  value={otp}
+                  onChange={(value) => setOtp(value)}
+                  maxLength={6}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <div className="flex justify-center items-center mt-2 text-xs text-gray-500">
+                <Clock className="h-3 w-3 mr-1" />
+                <span>Code expires in 10 minutes</span>
+              </div>
             </div>
+
+            {error && (
+              <div className="flex items-center gap-2 text-red-500 text-sm">
+                <AlertCircle className="h-4 w-4" />
+                <span>{error}</span>
+              </div>
+            )}
 
             <CustomButton 
               type="submit" 
               fullWidth 
               isLoading={isLoading}
+              icon={<CheckCircle className="h-4 w-4" />}
             >
               Verify & Continue
             </CustomButton>
@@ -227,15 +319,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
         </form>
 
         <div className="text-center text-sm">
-          <button className="text-bookqin-primary hover:underline">
+          <button 
+            onClick={handleResendOtp}
+            className="text-bookqin-primary hover:underline"
+            disabled={isLoading}
+          >
             Resend code
           </button>
           <span className="mx-2 text-gray-400">|</span>
           <button 
             onClick={() => setAuthStep('credentials')}
             className="text-bookqin-primary hover:underline"
+            disabled={isLoading}
           >
-            Change {authMethod}
+            Change phone number
           </button>
         </div>
       </div>
