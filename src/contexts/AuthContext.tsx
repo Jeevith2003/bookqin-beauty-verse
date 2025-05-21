@@ -37,24 +37,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (authUser) {
-        // Get user profile from profiles table
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', authUser.id)
-          .single();
-        
-        if (profileError) {
-          throw profileError;
+        try {
+          // Get user profile from profiles table
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', authUser.id)
+            .single();
+          
+          if (profileError) {
+            console.error('Profile error:', profileError);
+            // Check if the error is that the profile doesn't exist
+            if (profileError.code === 'PGRST116') {
+              // For development, create a mock profile based on user metadata
+              console.log('Profile not found, using mock data');
+              const mockType = authUser.user_metadata?.user_type || 'customer';
+              
+              const mockProfile = {
+                id: authUser.id,
+                name: 'Guest User',
+                email: authUser.email || '',
+                phone: authUser.phone || '',
+                type: mockType as UserType,
+                createdAt: new Date().toISOString(),
+                walletBalance: 0
+              };
+              
+              setUser(mockProfile as User);
+              setUserType(mockType as UserType);
+              return;
+            } else {
+              throw profileError;
+            }
+          }
+          
+          const fullUser = {
+            ...authUser,
+            ...profile
+          } as User;
+          
+          setUser(fullUser);
+          setUserType(profile.type as UserType || authUser.user_metadata?.user_type as UserType || 'customer');
+          
+        } catch (profileError) {
+          console.error('Error getting user profile:', profileError);
+          // Fall back to user metadata for userType
+          const fallbackType = authUser.user_metadata?.user_type as UserType || 'customer';
+          
+          // Create a minimal user object with essential data
+          const minimalUser = {
+            id: authUser.id,
+            name: 'Guest User',
+            email: authUser.email || '',
+            phone: authUser.phone || '',
+            type: fallbackType,
+          } as User;
+          
+          setUser(minimalUser);
+          setUserType(fallbackType);
+          
+          // Show a non-blocking warning
+          toast({
+            title: "Limited Profile Data",
+            description: "Some profile data couldn't be loaded, but you can continue using the app.",
+            variant: "default",
+          });
         }
-        
-        const fullUser = {
-          ...authUser,
-          ...profile
-        } as User;
-        
-        setUser(fullUser);
-        setUserType(profile.type as UserType);
       } else {
         setUser(null);
         setUserType(null);
@@ -62,10 +110,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error refreshing user:', error);
       toast({
-        title: "Error",
-        description: "Failed to load user profile",
+        title: "Authentication Error",
+        description: "Failed to load user profile. Please try signing in again.",
         variant: "destructive",
       });
+      
+      // Reset user state on critical errors
+      setUser(null);
+      setUserType(null);
+    } finally {
+      // Ensure loading state is updated even on errors
+      setLoading(false);
     }
   };
 
