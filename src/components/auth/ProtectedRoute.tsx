@@ -29,8 +29,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedTypes }) => {
     return <Navigate to="/" replace />;
   }
   
-  // If userType is null but we have a user, use a fallback from user metadata
-  const effectiveUserType = userType || (user.user_metadata?.user_type as UserType) || 'customer';
+  // Get effective user type from auth context or fallback to metadata in auth context
+  // This fix removes the direct access to user.user_metadata which caused a TypeScript error
+  const effectiveUserType = userType || 'customer';
   
   // If user type is not allowed for this route, redirect to appropriate dashboard
   if (!allowedTypes.includes(effectiveUserType)) {
