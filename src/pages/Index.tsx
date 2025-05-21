@@ -35,7 +35,13 @@ const Index = () => {
         <div className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-bookqin-gold/5"></div>
         
         <div className="container max-w-md mx-auto px-4 relative z-10">
-          <h1 className="text-4xl font-bold text-bookqin-light text-center mb-1">Bookqin</h1>
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/lovable-uploads/163ed8f5-fda4-4334-a74d-e05bc09b2015.png" 
+              alt="Bookqin Logo" 
+              className="h-16"
+            />
+          </div>
           <p className="text-bookqin-light/90 text-center text-lg">Your beauty services, simplified</p>
           
           <div className="flex justify-center mt-4">
@@ -98,7 +104,11 @@ const Index = () => {
       {/* Footer */}
       <div className="py-6 bg-white border-t border-gray-200">
         <div className="container max-w-md mx-auto px-4 text-center">
-          <h3 className="font-medium text-bookqin-secondary mb-2">Bookqin</h3>
+          <img 
+            src="/lovable-uploads/163ed8f5-fda4-4334-a74d-e05bc09b2015.png" 
+            alt="Bookqin Logo" 
+            className="h-8 mx-auto mb-2"
+          />
           <p className="text-sm text-gray-500">Your ultimate beauty booking platform</p>
         </div>
       </div>
