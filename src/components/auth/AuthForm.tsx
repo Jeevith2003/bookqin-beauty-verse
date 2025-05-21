@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import CustomButton from '../ui/CustomButton';
@@ -33,6 +32,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Added state to store the development OTP for easy testing
+  const [devOtp, setDevOtp] = useState<string | null>(null);
 
   const handleUserTypeSelection = (type: UserType) => {
     setUserType(type);
@@ -52,6 +54,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    setDevOtp(null); // Reset dev OTP
     
     try {
       if (!userType) {
@@ -67,10 +70,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
         }
         
         const fullPhoneNumber = getFullPhoneNumber();
+        console.log('Sending OTP to phone:', fullPhoneNumber);
+        
         const result = await authService.sendOtp(fullPhoneNumber, userType);
         
         if (!result.success) {
           throw new Error(result.error || 'Failed to send OTP');
+        }
+        
+        // For development, store the OTP
+        if (result.otp) {
+          setDevOtp(result.otp);
+          console.log('OTP received from backend:', result.otp);
         }
         
         toast({
@@ -83,10 +94,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
           throw new Error('Please enter a valid email address');
         }
         
+        console.log('Sending OTP to email:', email);
+        
         const result = await authService.sendEmailOtp(email, userType);
         
         if (!result.success) {
           throw new Error(result.error || 'Failed to send OTP');
+        }
+        
+        // For development, store the OTP
+        if (result.otp) {
+          setDevOtp(result.otp);
+          console.log('OTP received from backend:', result.otp);
         }
         
         toast({
@@ -369,6 +388,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
             Enter the verification code sent to {authMethod === 'phone' ? getFullPhoneNumber() : email}
           </p>
         </div>
+
+        {/* Development OTP display */}
+        {devOtp && (
+          <div className="bg-gray-100 p-2 rounded-md">
+            <p className="text-sm font-medium text-center">Development OTP: {devOtp}</p>
+            <p className="text-xs text-gray-500 text-center">(This is only visible in development)</p>
+          </div>
+        )}
 
         <form onSubmit={handleVerifyOtp}>
           <div className="space-y-4">
