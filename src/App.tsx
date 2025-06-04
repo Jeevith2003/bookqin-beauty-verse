@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import SplashScreen from "./pages/SplashScreen";
 
 // Customer Pages
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
@@ -22,6 +23,9 @@ import AIChat from "./pages/customer/AIChat";
 import NotificationsPage from "./pages/customer/NotificationsPage";
 import FeedbackAndRatings from "./pages/customer/FeedbackAndRatings";
 import CustomerProfile from "./pages/customer/CustomerProfile";
+import ServiceCategories from "./pages/customer/ServiceCategories";
+import SalonListing from "./pages/customer/SalonListing";
+import BookingConfirmation from "./pages/customer/BookingConfirmation";
 
 // Salon Pages
 import SalonDashboard from "./pages/salon/SalonDashboard";
@@ -80,11 +84,14 @@ const App = () => {
               {/* Customer routes */}
               <Route element={<ProtectedRoute allowedTypes={['customer']} />}>
                 <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+                <Route path="/customer/categories" element={<ServiceCategories />} />
+                <Route path="/customer/salons" element={<SalonListing />} />
                 <Route path="/customer/search" element={<SearchAndFilter />} />
                 <Route path="/customer/salon/:id" element={<CustomerSalonProfile />} />
                 <Route path="/customer/ai-style" element={<AIStyleRecommendation />} />
                 <Route path="/customer/booking" element={<BookingFlow />} />
                 <Route path="/customer/booking/:id" element={<BookingFlow />} />
+                <Route path="/customer/booking-confirmation" element={<BookingConfirmation />} />
                 <Route path="/customer/appointments" element={<BookingHistory />} />
                 <Route path="/customer/offers" element={<OffersAndRewards />} />
                 <Route path="/customer/wallet" element={<WalletPage />} />
