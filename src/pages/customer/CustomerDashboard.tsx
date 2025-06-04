@@ -4,6 +4,7 @@ import CustomerLayout from '@/components/layout/CustomerLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Star, MapPin, Clock, Sparkles, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import AIFeatures from '@/components/ai/AIFeatures';
 
 const CustomerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -78,6 +79,9 @@ const CustomerDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* AI Features Section */}
+        <AIFeatures />
 
         {/* Service Categories */}
         <Card>

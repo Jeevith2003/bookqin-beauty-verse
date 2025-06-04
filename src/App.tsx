@@ -12,7 +12,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 // Customer Pages
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import SearchAndFilter from "./pages/customer/SearchAndFilter";
-import SalonProfile from "./pages/customer/SalonProfile";
+import CustomerSalonProfile from "./pages/customer/SalonProfile";
 import AIStyleRecommendation from "./pages/customer/AIStyleRecommendation";
 import BookingFlow from "./pages/customer/BookingFlow";
 import BookingHistory from "./pages/customer/BookingHistory";
@@ -80,7 +80,7 @@ const App = () => {
               <Route element={<ProtectedRoute allowedTypes={['customer']} />}>
                 <Route path="/customer/dashboard" element={<CustomerDashboard />} />
                 <Route path="/customer/search" element={<SearchAndFilter />} />
-                <Route path="/customer/salon/:id" element={<SalonProfile />} />
+                <Route path="/customer/salon/:id" element={<CustomerSalonProfile />} />
                 <Route path="/customer/ai-style" element={<AIStyleRecommendation />} />
                 <Route path="/customer/booking" element={<BookingFlow />} />
                 <Route path="/customer/booking/:id" element={<BookingFlow />} />
