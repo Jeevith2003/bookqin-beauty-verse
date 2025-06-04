@@ -71,6 +71,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/splash" element={<SplashScreen />} />
               <Route path="/" element={<Index />} />
               
               {/* Redirect /dashboard to appropriate user dashboard */}

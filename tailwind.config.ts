@@ -66,13 +66,15 @@ export default {
 				bookqin: {
 					primary: '#0D1B2A',    // Deep Navy Blue
 					secondary: '#C28840',  // Warm Bronze/Gold
-					light: '#F8F8F8',      // Soft White
+					light: '#FAFAFA',      // Soft White
 					dark: '#0D1B2A',       // Deep Navy Blue
 					gold: '#C28840',       // Warm Bronze/Gold
-					softGray: '#F0F2F5',
-					peach: '#FDE1D3',
-					blue: '#D3E4FD',
-					pink: '#FFDEE2',
+					bronze: '#B8860B',     // Dark gold bronze
+					softGray: '#F5F5F5',
+					cream: '#FFF8F0',
+					accent: '#E8B86D',     // Light gold
+					text: '#2C3E50',       // Dark gray for text
+					muted: '#6B7280',      // Muted text
 				}
 			},
 			borderRadius: {
