@@ -30,6 +30,9 @@ import TrackAppointment from "./pages/customer/TrackAppointment";
 import ReferAndEarn from "./pages/customer/ReferAndEarn";
 import RebookLastService from "./pages/customer/RebookLastService";
 import WaitlistFeature from "./pages/customer/WaitlistFeature";
+import OnboardingScreens from "./pages/customer/OnboardingScreens";
+import HelpAndSupport from "./pages/customer/HelpAndSupport";
+import PaymentPage from "./pages/customer/PaymentPage";
 
 // Salon Pages
 import SalonDashboard from "./pages/salon/SalonDashboard";
@@ -42,8 +45,11 @@ import EarningsReports from "./pages/salon/EarningsReports";
 import SalonNotifications from "./pages/salon/SalonNotifications";
 import PartnerAcademy from "./pages/salon/PartnerAcademy";
 import SalonFeedback from "./pages/salon/SalonFeedback";
-import HelpAndSupport from "./pages/salon/HelpAndSupport";
+import SalonHelpAndSupport from "./pages/salon/HelpAndSupport";
 import SalonProfile from "./pages/salon/SalonProfile";
+import AdvancedSalonDashboard from "./pages/salon/AdvancedSalonDashboard";
+import AddOnCustomization from "./pages/salon/AddOnCustomization";
+import GenderNeutralSettings from "./pages/salon/GenderNeutralSettings";
 
 import "./App.css";
 
@@ -80,6 +86,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/splash" element={<SplashScreen />} />
+              <Route path="/onboarding" element={<OnboardingScreens />} />
               <Route path="/" element={<Index />} />
               
               {/* Redirect /dashboard to appropriate user dashboard */}
@@ -107,11 +114,13 @@ const App = () => {
                 <Route path="/customer/notifications" element={<NotificationsPage />} />
                 <Route path="/customer/feedback" element={<FeedbackAndRatings />} />
                 <Route path="/customer/profile" element={<CustomerProfile />} />
+                <Route path="/customer/help" element={<HelpAndSupport />} />
+                <Route path="/customer/payment" element={<PaymentPage />} />
               </Route>
               
               {/* Salon routes */}
               <Route element={<ProtectedRoute allowedTypes={['salon']} />}>
-                <Route path="/salon/dashboard" element={<SalonDashboard />} />
+                <Route path="/salon/dashboard" element={<AdvancedSalonDashboard />} />
                 <Route path="/salon/profile-setup" element={<SalonProfileSetup />} />
                 <Route path="/salon/services" element={<ServiceManagement />} />
                 <Route path="/salon/timeslots" element={<TimeSlotManagement />} />
@@ -121,8 +130,10 @@ const App = () => {
                 <Route path="/salon/notifications" element={<SalonNotifications />} />
                 <Route path="/salon/academy" element={<PartnerAcademy />} />
                 <Route path="/salon/feedback" element={<SalonFeedback />} />
-                <Route path="/salon/help" element={<HelpAndSupport />} />
+                <Route path="/salon/help" element={<SalonHelpAndSupport />} />
                 <Route path="/salon/profile" element={<SalonProfile />} />
+                <Route path="/salon/addons" element={<AddOnCustomization />} />
+                <Route path="/salon/gender-neutral" element={<GenderNeutralSettings />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
