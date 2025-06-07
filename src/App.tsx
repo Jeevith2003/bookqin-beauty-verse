@@ -26,6 +26,10 @@ import CustomerProfile from "./pages/customer/CustomerProfile";
 import ServiceCategories from "./pages/customer/ServiceCategories";
 import SalonListing from "./pages/customer/SalonListing";
 import BookingConfirmation from "./pages/customer/BookingConfirmation";
+import TrackAppointment from "./pages/customer/TrackAppointment";
+import ReferAndEarn from "./pages/customer/ReferAndEarn";
+import RebookLastService from "./pages/customer/RebookLastService";
+import WaitlistFeature from "./pages/customer/WaitlistFeature";
 
 // Salon Pages
 import SalonDashboard from "./pages/salon/SalonDashboard";
@@ -93,7 +97,11 @@ const App = () => {
                 <Route path="/customer/booking/:id" element={<BookingFlow />} />
                 <Route path="/customer/booking-confirmation" element={<BookingConfirmation />} />
                 <Route path="/customer/appointments" element={<BookingHistory />} />
+                <Route path="/customer/track" element={<TrackAppointment />} />
                 <Route path="/customer/offers" element={<OffersAndRewards />} />
+                <Route path="/customer/refer" element={<ReferAndEarn />} />
+                <Route path="/customer/rebook" element={<RebookLastService />} />
+                <Route path="/customer/waitlist" element={<WaitlistFeature />} />
                 <Route path="/customer/wallet" element={<WalletPage />} />
                 <Route path="/customer/chat" element={<AIChat />} />
                 <Route path="/customer/notifications" element={<NotificationsPage />} />
