@@ -1,16 +1,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '@/services/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { User, UserType } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-
-// Initialize the Supabase client with default values if env vars are not available
-// This ensures the app doesn't crash during development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
-
-// Initialize the Supabase client
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { authService } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -30,78 +25,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      const currentUser = auth.currentUser;
       
-      if (authError) {
-        throw authError;
-      }
-      
-      if (authUser) {
+      if (currentUser) {
         try {
-          // Get user profile from profiles table
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', authUser.id)
-            .single();
+          // Get user data from Firestore
+          const userDataResult = await authService.getUserData(currentUser.uid);
           
-          if (profileError) {
-            console.error('Profile error:', profileError);
-            // Check if the error is that the profile doesn't exist
-            if (profileError.code === 'PGRST116') {
-              // For development, create a mock profile based on user metadata
-              console.log('Profile not found, using mock data');
-              const mockType = authUser.user_metadata?.user_type || 'customer';
-              
-              const mockProfile = {
-                id: authUser.id,
-                name: 'Guest User',
-                email: authUser.email || '',
-                phone: authUser.phone || '',
-                type: mockType as UserType,
-                createdAt: new Date().toISOString(),
-                walletBalance: 0
-              };
-              
-              setUser(mockProfile as User);
-              setUserType(mockType as UserType);
-              return;
-            } else {
-              throw profileError;
-            }
+          if (userDataResult.success && userDataResult.data) {
+            const userData = userDataResult.data;
+            
+            const fullUser: User = {
+              id: currentUser.uid,
+              name: userData.name || 'Guest User',
+              email: currentUser.email || userData.email || '',
+              phone: currentUser.phoneNumber || userData.phoneNumber || '',
+              type: userData.userType as UserType,
+              createdAt: userData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+              walletBalance: userData.walletBalance || 0
+            };
+            
+            setUser(fullUser);
+            setUserType(userData.userType as UserType);
+          } else {
+            // Create a minimal user object with essential Firebase data
+            const minimalUser: User = {
+              id: currentUser.uid,
+              name: currentUser.displayName || 'Guest User',
+              email: currentUser.email || '',
+              phone: currentUser.phoneNumber || '',
+              type: 'customer', // Default type
+              createdAt: new Date().toISOString(),
+              walletBalance: 0
+            };
+            
+            setUser(minimalUser);
+            setUserType('customer');
+            
+            toast({
+              title: "Limited Profile Data",
+              description: "Some profile data couldn't be loaded, but you can continue using the app.",
+              variant: "default",
+            });
           }
+        } catch (error) {
+          console.error('Error getting user data from Firestore:', error);
           
-          const fullUser = {
-            ...authUser,
-            ...profile
-          } as User;
+          // Fallback to Firebase auth user data
+          const fallbackUser: User = {
+            id: currentUser.uid,
+            name: currentUser.displayName || 'Guest User',
+            email: currentUser.email || '',
+            phone: currentUser.phoneNumber || '',
+            type: 'customer',
+            createdAt: new Date().toISOString(),
+            walletBalance: 0
+          };
           
-          setUser(fullUser);
-          setUserType(profile.type as UserType || authUser.user_metadata?.user_type as UserType || 'customer');
-          
-        } catch (profileError) {
-          console.error('Error getting user profile:', profileError);
-          // Fall back to user metadata for userType
-          const fallbackType = authUser.user_metadata?.user_type as UserType || 'customer';
-          
-          // Create a minimal user object with essential data
-          const minimalUser = {
-            id: authUser.id,
-            name: 'Guest User',
-            email: authUser.email || '',
-            phone: authUser.phone || '',
-            type: fallbackType,
-          } as User;
-          
-          setUser(minimalUser);
-          setUserType(fallbackType);
-          
-          // Show a non-blocking warning
-          toast({
-            title: "Limited Profile Data",
-            description: "Some profile data couldn't be loaded, but you can continue using the app.",
-            variant: "default",
-          });
+          setUser(fallbackUser);
+          setUserType('customer');
         }
       } else {
         setUser(null);
@@ -115,60 +97,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: "destructive",
       });
       
-      // Reset user state on critical errors
       setUser(null);
       setUserType(null);
     } finally {
-      // Ensure loading state is updated even on errors
       setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setUserType(null);
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully",
-      });
-    } catch (error) {
+      const result = await authService.signOut();
+      if (result.success) {
+        setUser(null);
+        setUserType(null);
+        toast({
+          title: "Signed out",
+          description: "You have been signed out successfully",
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
       console.error('Error signing out:', error);
       toast({
         title: "Error",
-        description: "Failed to sign out",
+        description: error.message || "Failed to sign out",
         variant: "destructive",
       });
     }
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      setLoading(true);
+      
+      if (firebaseUser) {
         await refreshUser();
-      } finally {
+      } else {
+        setUser(null);
+        setUserType(null);
         setLoading(false);
       }
-    };
+    });
 
-    fetchUser();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
-          await refreshUser();
-        } else {
-          setUser(null);
-          setUserType(null);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   return (

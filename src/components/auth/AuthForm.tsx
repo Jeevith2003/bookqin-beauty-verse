@@ -369,6 +369,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onUserTypeSelect, onAuthSuccess }) 
           </form>
         </Tabs>
 
+        {/* reCAPTCHA container for Firebase phone auth */}
+        <div id="recaptcha-container"></div>
+
         <button 
           onClick={() => setAuthStep('userType')}
           className="text-center text-sm text-bookqin-primary hover:underline"
